@@ -1,0 +1,40 @@
+<body>
+    <%- include("partials/header") %>
+    <main>
+        <h2>Custom Wig Estimate</h2>
+
+        <div class="form-box">
+            <select id="length">
+                <option value="300">Bob (~12")</option>
+                <option value="450">20"</option>
+                <option value="525">22"</option>
+                <option value="600">24"</option>
+                <option value="675">26"</option>
+                <option value="750">28"</option>
+                <option value="825">30"</option>
+            </select>
+
+            <select id="color">
+                <option value="0">Natural Black / Brown</option>
+                <option value="100">Jet Black</option>
+                <option value="100">Burgundy</option>
+                <option value="100">Brown</option>
+                <option value="150">Highlights</option>
+            </select>
+
+            <button onclick="calc()">Calculate</button>
+        </div>
+
+        <h3 id="result"></h3>
+
+        <script>
+            function calc() {
+                const length = Number(document.getElementById("length").value);
+                const color = Number(document.getElementById("color").value);
+                const total = length + color;
+                document.getElementById("result").innerText = "Estimated Price: $" + total;
+            }
+        </script>
+    </main>
+    <%- include("partials/footer") %>
+</body>

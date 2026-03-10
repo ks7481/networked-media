@@ -1,0 +1,85 @@
+<body>
+    <%- include("partials/header") %>
+        <main>
+            <h2>Product Reviews</h2>
+            <h3>Average Rating: <%= avg %> ⭐</h3>
+
+            <form method="GET">
+                <select name="sort" onchange="this.form.submit()">
+                    <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest</option>
+                    <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest</option>
+                    <option value="highest" <%= sort === 'highest' ? 'selected' : '' %>>Highest Rating</option>
+                    <option value="lowest" <%= sort === 'lowest' ? 'selected' : '' %>>Lowest Rating</option>
+                </select>
+
+                <select name="product" onchange="this.form.submit()">
+                    <option value="">All Products</option>
+                    <% products.forEach(product => { %>
+                        <option value="<%= product %>" <%= queryProduct === product ? 'selected' : '' %>><%= product %></option>
+                    <% }) %>
+                </select>
+            </form>
+
+            <form class="form-box" action="/product-review" method="POST" enctype="multipart/form-data">
+                <input name="name" placeholder="Name" required>
+                <select name="product" required>
+                    <option value="">Select Product</option>
+
+                    <% products.forEach(product => { %>
+                        <option value="<%= product %>"><%= product %></option>
+                    <% }) %>
+                </select>
+
+                <div class="star-rating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                    <input type="hidden" name="rating" required>
+                </div>
+
+                <textarea name="text" placeholder="Write your review..." required></textarea>
+                <input type="file" name="image">
+                <button>Submit Review</button>
+            </form>
+
+            <script src="/star.js"></script>
+
+            <% reviews.forEach(r => { %>
+                <div class="review-card">
+                    <strong><%= r.name %></strong>
+                    <p>Product: <%= r.category %></p>
+                    <p>Rating: <%= r.rating %> ⭐</p>
+                    <p><%= r.text %></p>
+
+                    <div>
+                        <% if (r.image) { %>
+                            <img class="review-img" src="/uploads/<%= r.image %>">
+                        <% } %>
+                    </div>
+
+                    <button class="helpful-btn" data-id="<%= r.id %>">
+                        Helpful (<span class="helpful-count"><%= r.helpful %></span>)
+                    </button>
+
+                    <% if (r.reply) { %>
+                        <p><strong>Admin:</strong> <%= r.reply %></p>
+                    <% } %>
+                </div>
+            <% }) %>
+
+            <script>
+                document.querySelectorAll(".helpful-btn").forEach(btn=>{
+                    btn.addEventListener("click",()=>{
+                        fetch(`/helpful-product/${btn.dataset.id}`,{method:"POST"})
+                        .then(res=>res.json())
+                        .then(data=>{
+                            btn.querySelector(".helpful-count").textContent=data.helpful
+                        })
+                    })
+                })
+            </script>
+        </main>
+    <%- include("partials/footer") %>
+</body>

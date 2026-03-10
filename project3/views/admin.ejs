@@ -1,0 +1,85 @@
+<body class="admin-page">
+    <%- include("partials/header") %>
+        <main>
+            <h2>Admin Dashboard</h2>
+
+            <% if(login){ %>
+                <form class="form-box" method="POST" action="/admin-login">
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button>Login</button>
+                </form>
+            <% } else { %>
+                <div class="admin-grid">
+                    <div class="admin-column">
+                        <h3>Service Reviews</h3>
+
+                        <% serviceReviews.forEach(r=>{ %>
+                            <div class="review-card">
+                                <p><%= r.text %></p>
+
+                                <p class="status <%= r.reply ? 'green':'orange' %>">
+                                    <%= r.reply ? 'Responded':'Pending' %>
+                                </p>
+
+                                <form action="/reply-service/<%= r.id %>" method="POST">
+                                    <textarea name="reply" placeholder="Reply"><%= r.reply||'' %></textarea>
+                                    <button>Reply</button>
+                                </form>
+
+                                <form action="/delete-service/<%= r.id %>" method="POST">
+                                    <button>Delete</button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <div class="admin-column">
+                        <h3>Product Reviews</h3>
+
+                        <% productReviews.forEach(r=>{ %>
+                            <div class="review-card">
+                                <p><%= r.text %></p>
+
+                                <p class="status <%= r.reply?'green':'orange' %>">
+                                    <%= r.reply?'Responded':'Pending' %>
+                                </p>
+
+                                <form action="/reply-product/<%= r.id %>" method="POST">
+                                    <textarea name="reply" placeholder="Reply"><%= r.reply||'' %></textarea>
+                                    <button>Reply</button>
+                                </form>
+
+                                <form action="/delete-product/<%= r.id %>" method="POST">
+                                    <button>Delete</button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <div class="admin-column">
+                        <h3>Questions</h3>
+
+                        <% questions.forEach(q=>{ %>
+                            <div class="review-card">
+                                <p><%= q.question %></p>
+
+                                <p class="status <%= q.answer?'green':'orange' %>">
+                                    <%= q.answer?'Answered':'Pending' %>
+                                </p>
+
+                                <form action="/answer/<%= q.id %>" method="POST">
+                                    <textarea name="answer" placeholder="Answer"><%= q.answer||'' %></textarea>
+                                    <button>Answer</button>
+                                </form>
+
+                                <form action="/delete-question/<%= q.id %>" method="POST">
+                                    <button>Delete</button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+            <% } %>
+        </main>
+    <%- include("partials/footer") %>
+</body>

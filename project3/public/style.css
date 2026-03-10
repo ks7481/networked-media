@@ -1,0 +1,260 @@
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/ibmplexsans.ttf") format("truetype");
+  font-weight: 100 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("/sg.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Schibsted Grotesk Italic";
+  src: url("/sgitalic.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: "IBM Plex Sans", sans-serif;
+  background: #f5f5f5;
+  color: #222;
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-family: "Schibsted Grotesk", sans-serif;
+  margin-top: 0;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: #111;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+.logo img {
+  height: 70px;
+  width: auto;
+}
+
+.brand-text, .brand-text2 {
+  font-family: "Schibsted Grotesk Italic", sans-serif;
+  display: inline;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+.brand-text {
+  font-weight: 600;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 18px;
+  max-width: 70%;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: "Schibsted Grotesk", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+nav a:hover {
+  opacity: 0.7;
+}
+
+main {
+  flex: 1;
+  max-width: 1000px;
+  margin: auto;
+  padding: 120px 20px 40px 20px;
+  box-sizing: border-box;
+}
+
+footer {
+  background: #111;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-box {
+  background: white;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #000;
+}
+
+button {
+  padding: 11px 22px;
+  background: #111;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: "Schibsted Grotesk", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.05s ease;
+}
+
+button:hover {
+  background: #333;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.review-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease;
+  margin-bottom: 15px;
+}
+
+.review-card:hover {
+  transform: translateY(-2px);
+}
+
+.review-img {
+  width: 300px;
+  margin-top: 10px;
+  border-radius: 6px;
+}
+
+.star {
+  font-size: 26px;
+  cursor: pointer;
+  color: #bbb;
+  transition: color 0.15s ease;
+}
+
+.star.selected {
+  color: gold;
+}
+
+#result {
+  margin-top: 20px;
+}
+
+.admin-page main {
+  max-width: 1400px;
+  margin: auto;
+  padding: 120px 20px 40px 20px;
+  box-sizing: border-box;
+}
+
+.admin-grid {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.admin-column {
+  flex: 1 1 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.status {
+  font-weight: 600;
+}
+
+.status.green {
+  color: green;
+}
+
+.status.orange {
+  color: orange;
+}
+
+@media (max-width: 1200px) {
+  .admin-column {
+    flex: 1 1 45%;
+  }
+}
+
+@media (max-width: 800px) {
+  nav {
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .logo img {
+    height: 60px;
+  }
+
+  .admin-column {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  nav {
+    margin-top: 8px;
+    max-width: 100%;
+  }
+
+  main {
+    padding-top: 150px;
+  }
+}
