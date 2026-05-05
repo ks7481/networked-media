@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/style.css">
+        <title>The Space — <%= personality.toUpperCase() %></title>
+    </head>
+    <body class="<%= [personality].concat(secondaryTraits || []).join(' ') %>">
+        <%- include('partials/nav.ejs') %>
+
+        <% if (personality === 'calm') { %>
+            <%- include('partials/hub-calm.ejs') %>
+        <% } else if (personality === 'chaotic') { %>
+            <%- include('partials/hub-chaotic.ejs') %>
+        <% } else if (personality === 'direct') { %>
+            <%- include('partials/hub-direct.ejs') %>
+        <% } else if (personality === 'curious') { %>
+            <%- include('partials/hub-curious.ejs') %>
+        <% } else if (personality === 'analytical') { %>
+            <%- include('partials/hub-analytical.ejs') %>
+        <% } else { %>
+            <%- include('partials/hub-playful.ejs') %>
+        <% } %>
+
+        <div id="share-popup" class="share-popup" data-personality="<%= personality %>">
+            <div class="share-popup-inner">
+                <span class="share-popup-icon">✓</span>
+                <span class="share-popup-msg">Link copied to clipboard!</span>
+            </div>
+        </div>
+
+        <script type="application/json" id="hub-data"><%- JSON.stringify({ personality: personality, allScores: allScores || {} }) %></script>
+        <script>window.HUB_DATA = JSON.parse(document.getElementById('hub-data').textContent);</script>
+        <script src="/main.js"></script>
+        <script src="/tracker.js"></script>
+    </body>
+</html>

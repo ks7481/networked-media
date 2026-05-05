@@ -1,0 +1,121 @@
+<%
+    const feedByType = {};
+    feed.forEach(item => {
+        if (!feedByType[item.type]) feedByType[item.type] = [];
+        feedByType[item.type].push(item);
+    });
+    const cQ  = (feedByType['quote']   || [])[0];
+    const cB  = (feedByType['breathe'] || [])[0];
+    const cP  = (feedByType['palette'] || [])[0];
+    const cEx = (feedByType['expand']  || [])[0];
+    const cTx = feedByType['text']  || [];
+    const cIm = feedByType['image'] || [];
+%>
+
+<div class="calm-hub">
+    <header class="calm-hero">
+        <div class="calm-orb calm-orb-1"></div>
+        <div class="calm-orb calm-orb-2"></div>
+        <p class="calm-eyebrow">you are</p>
+        <h1 class="calm-title"><%= personality %></h1>
+        <% if (secondaryTraits && secondaryTraits.length > 0) { %>
+            <div class="trait-badges calm-badges">
+                <% secondaryTraits.forEach(t => { %><span class="badge"><%= t %></span><% }) %>
+            </div>
+        <% } %>
+        <p class="calm-tagline">You move through the world like still water.</p>
+    </header>
+
+    <div class="calm-masonry">
+        <% if (cQ) { %>
+        <div class="calm-card calm-quote-card">
+            <div class="calm-quote-mark">"</div>
+            <blockquote class="calm-quote-text"><%- cQ.content.replace(/\n/g, '<br>') %></blockquote>
+            <% if (cQ.attribution) { %><cite class="calm-attribution"><%= cQ.attribution %></cite><% } %>
+        </div>
+        <% } %>
+
+        <% if (cIm[0]) { %>
+        <div class="calm-card calm-image-card">
+            <div class="calm-img-wrap">
+                <img src="<%= cIm[0].src %>" alt="<%= cIm[0].alt %>" class="hub-img" loading="lazy">
+                <div class="calm-img-overlay-text"><%= cIm[0].alt %></div>
+            </div>
+            <% if (cIm[0].caption) { %><p class="calm-caption"><%= cIm[0].caption %></p><% } %>
+        </div>
+        <% } %>
+
+        <% if (cB) { %>
+        <div class="calm-card calm-breathe-card">
+            <p class="calm-card-label">practice</p>
+            <div class="breathe-container">
+                <div class="breathe-ring" id="breatheRing">
+                    <div class="breathe-inner"></div>
+                    <span class="breathe-label" id="breatheLabel">breathe</span>
+                </div>
+            </div>
+            <button class="calm-btn" onclick="startBreathe(this)"><%= cB.label %></button>
+        </div>
+        <% } %>
+
+        <% if (cTx[0]) { %>
+        <div class="calm-card calm-text-card">
+            <p class="calm-body-text"><%- cTx[0].content.replace(/\n/g, '<br>') %></p>
+        </div>
+        <% } %>
+
+        <% if (cP) { %>
+        <div class="calm-card calm-palette-card">
+            <p class="calm-card-label"><%= cP.label %></p>
+            <div class="calm-palette-row">
+                <% cP.colors.forEach(color => { %>
+                    <div class="calm-swatch"
+                         style="--color: <%= color %>"
+                         data-color="<%= color %>"
+                         onmouseenter="calmSwatchHover(this)"
+                         onmouseleave="calmSwatchLeave()"></div>
+                <% }) %>
+            </div>
+            <p class="calm-palette-hint" id="paletteHint">hover to feel each tone</p>
+        </div>
+        <% } %>
+
+        <% if (cIm[1]) { %>
+        <div class="calm-card calm-image-card">
+            <div class="calm-img-wrap">
+                <img src="<%= cIm[1].src %>" alt="<%= cIm[1].alt %>" class="hub-img" loading="lazy">
+                <div class="calm-img-overlay-text"><%= cIm[1].alt %></div>
+            </div>
+            <% if (cIm[1].caption) { %><p class="calm-caption"><%= cIm[1].caption %></p><% } %>
+        </div>
+        <% } %>
+
+        <% if (cEx) { %>
+        <div class="calm-card calm-expand-card">
+            <button class="calm-expand-trigger" onclick="calmToggleExpand(this)">
+                <span class="expand-icon">+</span>
+                <span class="expand-label-text"><%= cEx.label %></span>
+            </button>
+            <div class="calm-expand-body">
+                <p class="calm-expand-text"><%= cEx.expandContent %></p>
+            </div>
+        </div>
+        <% } %>
+
+        <% if (cTx[1]) { %>
+        <div class="calm-card calm-text-card calm-text-em">
+            <p class="calm-body-text"><%- cTx[1].content.replace(/\n/g, '<br>') %></p>
+        </div>
+        <% } %>
+
+        <% if (cIm[2]) { %>
+        <div class="calm-card calm-image-card calm-image-full">
+            <div class="calm-img-wrap">
+                <img src="<%= cIm[2].src %>" alt="<%= cIm[2].alt %>" class="hub-img" loading="lazy">
+                <div class="calm-img-overlay-text"><%= cIm[2].alt %></div>
+            </div>
+            <% if (cIm[2].caption) { %><p class="calm-caption"><%= cIm[2].caption %></p><% } %>
+        </div>
+        <% } %>
+    </div>
+</div>

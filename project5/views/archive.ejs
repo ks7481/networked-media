@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/style.css">
+        <title>Archive</title>
+    </head>
+    <body class="archive-page">
+        <%- include('partials/nav.ejs') %>
+
+        <div class="archive-wrapper">
+            <h1 class="archive-heading">Global Archive</h1>
+            <p class="archive-count"><%= entries.length %> recorded path<%= entries.length !== 1 ? 's' : '' %> &mdash; sorted by recency</p>
+
+            <% if (entries.length === 0) { %>
+                <div class="card archive-empty-card">
+                    <p class="archive-empty-text">No paths archived yet. Complete the quiz and share your result.</p>
+                </div>
+            <% } else { %>
+            <div class="archive-grid">
+                <% entries.forEach((entry, idx) => { %>
+                    <div class="archive-card <%= entry.personality %>" data-idx="<%= idx %>">
+                        <canvas
+                            class="archive-canvas-preview"
+                            id="preview-<%= idx %>"
+                            width="260"
+                            height="120"
+                            data-path="<%= JSON.stringify(entry.cursorData || []).replace(/"/g, '&quot;') %>"
+                            data-personality="<%= entry.personality %>"
+                        ></canvas>
+                        <div class="personality-tag"><%= entry.personality %><% if (entry.secondaryTraits && entry.secondaryTraits.length) { %> · <%= entry.secondaryTraits.join(' · ') %><% } %></div>
+                        <h4><%= new Date(entry.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></h4>
+                        <a href="/archive/<%= entry.id %>" class="btn btn-primary btn-sm">View Path →</a>
+                    </div>
+                <% }) %>
+            </div>
+            <% } %>
+        </div>
+
+        <script>
+            const trailColors = {
+                calm: '#a8d8c8',
+                chaotic: '#ff2d55',
+                direct: '#111111',
+                curious: '#a78bfa',
+                analytical: '#7dffb0',
+                playful: '#ff9fbf'
+            };
+
+            function drawMiniPreview(canvas, pathData, personality) {
+                if (!pathData || pathData.length < 2) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ccc';
+                    ctx.font = '11px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('no data', canvas.width / 2, canvas.height / 2);
+                    return;
+                }
+
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const xs = pathData.map(p => p.x);
+                const ys = pathData.map(p => p.y);
+                const minX = Math.min(...xs), maxX = Math.max(...xs);
+                const minY = Math.min(...ys), maxY = Math.max(...ys);
+                const rangeX = (maxX - minX) || 1;
+                const rangeY = (maxY - minY) || 1;
+
+                const pad = 10;
+                const scaleX = (canvas.width - pad * 2) / rangeX;
+                const scaleY = (canvas.height - pad * 2) / rangeY;
+
+                const color = trailColors[personality] || '#6c5ce7';
+
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                pathData.forEach((point, i) => {
+                    const x = pad + (point.x - minX) * scaleX;
+                    const y = pad + (point.y - minY) * scaleY;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                pathData.filter(p => p.eventType === 'click').forEach(point => {
+                    const x = pad + (point.x - minX) * scaleX;
+                    const y = pad + (point.y - minY) * scaleY;
+                    ctx.beginPath();
+                    ctx.fillStyle = color;
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.archive-canvas-preview').forEach(canvas => {
+                    const rawData = canvas.getAttribute('data-path');
+                    const personality = canvas.getAttribute('data-personality');
+                    let pathData = [];
+                    try {
+                        pathData = JSON.parse(rawData.replace(/&quot;/g, '"'));
+                    } catch (e) { pathData = []; }
+                    drawMiniPreview(canvas, pathData, personality);
+                });
+            });
+        </script>
+    </body>
+</html>

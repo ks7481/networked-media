@@ -1,0 +1,135 @@
+<%
+    const feedByType = {};
+    feed.forEach(item => {
+        if (!feedByType[item.type]) feedByType[item.type] = [];
+        feedByType[item.type].push(item);
+    });
+    const pHero    = (feedByType['confetti-hero'] || [])[0];
+    const pVote    = (feedByType['emoji-vote']    || [])[0];
+    const pQuote   = (feedByType['quote']         || [])[0];
+    const pBounce  = (feedByType['bounce-text']   || [])[0];
+    const pWheel   = (feedByType['spin-wheel']    || [])[0];
+    const pTexts   = feedByType['text']  || [];
+    const pImages  = feedByType['image'] || [];
+%>
+
+<div class="playful-hub">
+    <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+    <header class="playful-hero">
+        <div class="playful-bubbles" aria-hidden="true">
+            <% for(let i = 0; i < 8; i++) { %>
+            <div class="playful-bubble" style="--left: <%= 5 + i*12 %>%; --delay: <%= (i * 0.4).toFixed(1) %>s; --size: <%= 30 + (i%3)*20 %>px;"></div>
+            <% } %>
+        </div>
+        <% if (pHero) { %>
+        <p class="playful-subtitle"><%= pHero.subtitle %></p>
+        <% } %>
+        <h1 class="playful-title">playful</h1>
+        <% if (secondaryTraits && secondaryTraits.length > 0) { %>
+            <div class="trait-badges playful-badges">
+                <% secondaryTraits.forEach(t => { %><span class="badge"><%= t %></span><% }) %>
+            </div>
+        <% } %>
+        <% if (pHero) { %>
+        <button class="playful-confetti-btn" onclick="dropConfetti()"><%= pHero.label %></button>
+        <% } %>
+    </header>
+
+    <div class="playful-bento">
+        <div class="playful-bento-row playful-row-1">
+            <% if (pImages[0]) { %>
+            <div class="playful-card playful-img-card playful-span-2">
+                <div class="playful-img-wrap">
+                    <img src="<%= pImages[0].src %>" alt="<%= pImages[0].alt %>" class="hub-img" loading="lazy">
+                    <div class="playful-img-overlay"><%= pImages[0].alt %></div>
+                </div>
+                <% if (pImages[0].caption) { %><p class="playful-caption"><%= pImages[0].caption %></p><% } %>
+            </div>
+            <% } %>
+
+            <% if (pVote) { %>
+            <div class="playful-card playful-vote-card">
+                <p class="playful-card-label"><%= pVote.label %></p>
+                <div class="playful-emoji-grid">
+                    <% pVote.options.forEach(opt => { %>
+                    <button class="playful-emoji-btn" onclick="emojiVote(this, '<%= opt.label %>')"
+                            data-label="<%= opt.label %>">
+                        <span class="playful-emoji"><%= opt.emoji %></span>
+                        <span class="playful-emoji-label"><%= opt.label %></span>
+                    </button>
+                    <% }) %>
+                </div>
+                <p class="playful-vote-result" id="voteResult"></p>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="playful-bento-row playful-row-2">
+            <% if (pQuote) { %>
+            <div class="playful-card playful-quote-card">
+                <div class="playful-quote-deco">"</div>
+                <blockquote class="playful-quote-text"><%= pQuote.content %></blockquote>
+                <% if (pQuote.attribution) { %><cite class="playful-attribution"><%= pQuote.attribution %></cite><% } %>
+            </div>
+            <% } %>
+
+            <% if (pImages[1]) { %>
+            <div class="playful-card playful-img-card">
+                <div class="playful-img-wrap">
+                    <img src="<%= pImages[1].src %>" alt="<%= pImages[1].alt %>" class="hub-img" loading="lazy">
+                    <div class="playful-img-overlay"><%= pImages[1].alt %></div>
+                </div>
+                <% if (pImages[1].caption) { %><p class="playful-caption"><%= pImages[1].caption %></p><% } %>
+            </div>
+            <% } %>
+
+            <% if (pWheel) { %>
+            <div class="playful-card playful-wheel-card">
+                <p class="playful-card-label"><%= pWheel.label %></p>
+                <div class="playful-wheel-wrap">
+                    <div class="playful-wheel" id="playfulWheel">
+                        <div class="playful-wheel-inner" id="wheelInner">🎡</div>
+                    </div>
+                    <div class="playful-wheel-pointer">▼</div>
+                </div>
+                <button class="playful-spin-btn" onclick="spinWheel()" id="spinBtn"><%= pWheel.label %></button>
+                <p class="playful-wheel-result" id="wheelResult"></p>
+                <script type="application/json" id="wheel-options"><%- JSON.stringify(pWheel.options || []) %></script>
+                <script>
+                    window._wheelOptions = JSON.parse(document.getElementById('wheel-options').textContent);
+                </script>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="playful-bento-row playful-row-3">
+            <% if (pBounce) { %>
+            <div class="playful-card playful-bounce-card playful-span-2">
+                <p class="playful-bounce-text" id="bounceText">
+                    <% pBounce.content.split('').forEach((ch, i) => { %>
+                        <span class="bounce-char" style="--delay: <%= (i * 0.05).toFixed(2) %>s"><%= ch === ' ' ? '&nbsp;' : ch %></span>
+                    <% }) %>
+                </p>
+            </div>
+            <% } %>
+            <% if (pTexts[0]) { %>
+            <div class="playful-card playful-text-card">
+                <p class="playful-body-text"><%- pTexts[0].content.replace(/\n/g, '<br>') %></p>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="playful-bento-row playful-row-4">
+            <% if (pImages[2]) { %>
+            <div class="playful-card playful-img-card">
+                <div class="playful-img-wrap">
+                    <img src="<%= pImages[2].src %>" alt="<%= pImages[2].alt %>" class="hub-img" loading="lazy">
+                    <div class="playful-img-overlay"><%= pImages[2].alt %></div>
+                </div>
+                <% if (pImages[2].caption) { %><p class="playful-caption"><%= pImages[2].caption %></p><% } %>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,114 @@
+<%
+    const feedByType = {};
+    feed.forEach(item => {
+        if (!feedByType[item.type]) feedByType[item.type] = [];
+        feedByType[item.type].push(item);
+    });
+    const chGlitch  = (feedByType['glitch-title']  || [])[0];
+    const chCounter = (feedByType['chaos-counter'] || [])[0];
+    const chTicker  = (feedByType['ticker']        || [])[0];
+    const chScramble= (feedByType['scramble']      || [])[0];
+    const chInteract= (feedByType['interactive']   || [])[0];
+    const chTexts   = feedByType['text']  || [];
+    const chImages  = feedByType['image'] || [];
+%>
+
+<div class="chaotic-hub">
+    <div class="chaotic-hero">
+        <div class="chaos-eyebrow">PERSONALITY: <span>CHAOTIC</span></div>
+        <% if (chGlitch) { %>
+        <h1 class="glitch-title" data-text="<%= chGlitch.content %>">
+            <%= chGlitch.content %>
+        </h1>
+        <% } %>
+        <% if (secondaryTraits && secondaryTraits.length > 0) { %>
+            <div class="trait-badges chaos-badges">
+                <% secondaryTraits.forEach(t => { %><span class="badge"><%= t %></span><% }) %>
+            </div>
+        <% } %>
+    </div>
+
+    <div class="chaotic-grid" id="chaoticGrid">
+        <% if (chImages[0]) { %>
+        <div class="chaos-card chaos-img-card chaos-rotate-neg">
+            <div class="chaos-img-wrap">
+                <img src="<%= chImages[0].src %>" alt="<%= chImages[0].alt %>" class="hub-img" loading="lazy">
+                <div class="chaos-img-overlay"><%= chImages[0].alt %></div>
+            </div>
+        </div>
+        <% } %>
+
+        <% if (chTexts[0]) { %>
+        <div class="chaos-card chaos-text-card chaos-rotate-pos">
+            <p class="chaos-text"><%- chTexts[0].content.replace(/\n/g, '<br>') %></p>
+        </div>
+        <% } %>
+
+        <% if (chCounter) { %>
+        <div class="chaos-card chaos-counter-card chaos-rotate-neg2">
+            <div class="chaos-counter-label"><%= chCounter.label %></div>
+            <div class="chaos-counter-value" id="chaosCounterVal">0</div>
+            <button class="chaos-btn" onclick="incrementChaos()">++ AMPLIFY</button>
+        </div>
+        <% } %>
+
+        <% if (chImages[1]) { %>
+        <div class="chaos-card chaos-img-card chaos-img-large chaos-rotate-pos2">
+            <div class="chaos-img-wrap">
+                <img src="<%= chImages[1].src %>" alt="<%= chImages[1].alt %>" class="hub-img" loading="lazy">
+                <div class="chaos-img-overlay"><%= chImages[1].alt %></div>
+            </div>
+        </div>
+        <% } %>
+
+        <% if (chScramble) { %>
+        <div class="chaos-card chaos-scramble-card chaos-rotate-neg">
+            <p class="chaos-scramble-text" id="scrambleTarget"><%= chScramble.content %></p>
+            <button class="chaos-btn chaos-btn-sm" onclick="scrambleText()"><%= chScramble.label %></button>
+        </div>
+        <% } %>
+
+        <% if (chTexts[1]) { %>
+        <div class="chaos-card chaos-text-card chaos-rotate-pos">
+            <p class="chaos-text chaos-text-lg"><%- chTexts[1].content.replace(/\n/g, '<br>') %></p>
+        </div>
+        <% } %>
+
+        <% if (chImages[2]) { %>
+        <div class="chaos-card chaos-img-card chaos-rotate-neg2">
+            <div class="chaos-img-wrap">
+                <img src="<%= chImages[2].src %>" alt="<%= chImages[2].alt %>" class="hub-img" loading="lazy">
+                <div class="chaos-img-overlay"><%= chImages[2].alt %></div>
+            </div>
+        </div>
+        <% } %>
+
+        <% if (chInteract) { %>
+        <div class="chaos-card chaos-detonate-card chaos-rotate-pos2">
+            <button class="chaos-detonate-btn" onclick="window['<%= chInteract.action %>']()">DETONATE</button>
+        </div>
+        <% } %>
+
+    </div>
+    
+    <% if (chTicker) { %>
+    <div class="chaos-ticker-wrap">
+        <div class="chaos-ticker" id="chaosTicker">
+            <span><%= chTicker.content %></span>
+            <span aria-hidden="true"><%= chTicker.content %></span>
+        </div>
+    </div>
+    <% } %>
+
+    <div class="chaos-flash-overlay" id="chaosFlashOverlay" aria-modal="true" role="dialog" aria-hidden="true">
+        <div class="chaos-flash-popup">
+            <div class="chaos-flash-popup-label">// WARNING</div>
+            <h2 class="chaos-flash-popup-title">FLASH WARNING</h2>
+            <p class="chaos-flash-popup-body">This effect contains rapid flashing. Proceed?</p>
+            <div class="chaos-flash-popup-actions">
+                <button class="chaos-detonate-btn chaos-flash-continue-btn" onclick="chaosFlashContinue()">CONTINUE</button>
+                <button class="chaos-btn chaos-flash-disable-btn" onclick="chaosFlashDisable()">DISABLE FLASHES</button>
+            </div>
+        </div>
+    </div>
+</div>

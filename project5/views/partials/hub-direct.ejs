@@ -1,0 +1,127 @@
+<%
+    const feedByType = {};
+    feed.forEach(item => {
+        if (!feedByType[item.type]) feedByType[item.type] = [];
+        feedByType[item.type].push(item);
+    });
+    const dHeader   = (feedByType['direct-header'] || [])[0];
+    const dChecklist= (feedByType['checklist']     || [])[0];
+    const dStats    = (feedByType['direct-stats']  || [])[0];
+    const dInteract = (feedByType['interactive']   || [])[0];
+    const dTexts    = feedByType['text']  || [];
+    const dImages   = feedByType['image'] || [];
+%>
+
+<div class="direct-hub" id="directHub">
+    <div class="direct-status-bar">
+        <span class="direct-type-tag">TYPE: DIRECT</span>
+        <% if (secondaryTraits && secondaryTraits.length > 0) { %>
+            <span class="direct-traits-tag">+ <%= secondaryTraits.join(' + ') %></span>
+        <% } %>
+        <% if (dHeader) { %>
+            <span class="direct-status-tag">STATUS: <%= dHeader.status %></span>
+            <span class="direct-uptime-tag">UPTIME: <%= dHeader.uptime %></span>
+        <% } %>
+        <span class="direct-time-tag" id="directClock">--:--:--</span>
+    </div>
+
+    <div class="direct-title-row">
+        <h1 class="direct-title">DIRECT</h1>
+        <div class="direct-title-line"></div>
+    </div>
+
+    <div class="direct-grid">
+        <div class="direct-main">
+            <% if (dChecklist) { %>
+            <div class="direct-block">
+                <div class="direct-block-label">// PROTOCOL</div>
+                <ul class="direct-checklist" id="directChecklist">
+                    <% dChecklist.items.forEach((item, i) => { %>
+                        <li class="direct-check-item" onclick="toggleDirectCheck(this)">
+                            <span class="direct-check-box" data-index="<%= i %>">[ ]</span>
+                            <span class="direct-check-text"><%= item %></span>
+                        </li>
+                    <% }) %>
+                </ul>
+                <div class="direct-progress-wrap">
+                    <div class="direct-progress-track">
+                        <div class="direct-progress-fill" id="directProgress"></div>
+                    </div>
+                    <span class="direct-progress-label" id="directProgressLabel">0 / <%= dChecklist.items.length %> complete</span>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dTexts[0]) { %>
+            <div class="direct-block">
+                <div class="direct-block-label">// PRINCIPLE</div>
+                <p class="direct-text"><%- dTexts[0].content.replace(/\n/g, '<br>') %></p>
+            </div>
+            <% } %>
+
+            <% if (dImages[0]) { %>
+            <div class="direct-block direct-img-block">
+                <div class="direct-block-label">// REFERENCE</div>
+                <div class="direct-img-wrap">
+                    <img src="<%= dImages[0].src %>" alt="<%= dImages[0].alt %>" class="hub-img" loading="lazy">
+                    <div class="direct-img-overlay"><%= dImages[0].alt %></div>
+                </div>
+                <% if (dImages[0].caption) { %><p class="direct-caption"><%= dImages[0].caption %></p><% } %>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="direct-aside">
+            <% if (dStats) { %>
+            <div class="direct-block direct-stats-block">
+                <div class="direct-block-label">// METRICS</div>
+                <% dStats.stats.forEach(stat => { %>
+                    <div class="direct-stat-row">
+                        <span class="direct-stat-label"><%= stat.label %></span>
+                        <span class="direct-stat-value"><%= stat.value %></span>
+                    </div>
+                <% }) %>
+            </div>
+            <% } %>
+
+            <% if (dTexts[1]) { %>
+            <div class="direct-block">
+                <div class="direct-block-label">// MAXIM</div>
+                <p class="direct-text direct-text-sm"><%- dTexts[1].content.replace(/\n/g, '<br>') %></p>
+            </div>
+            <% } %>
+
+            <% if (dImages[1]) { %>
+            <div class="direct-block direct-img-block">
+                <div class="direct-img-wrap">
+                    <img src="<%= dImages[1].src %>" alt="<%= dImages[1].alt %>" class="hub-img" loading="lazy">
+                    <div class="direct-img-overlay"><%= dImages[1].alt %></div>
+                </div>
+                <% if (dImages[1].caption) { %><p class="direct-caption"><%= dImages[1].caption %></p><% } %>
+            </div>
+            <% } %>
+
+            <% if (dInteract) { %>
+            <div class="direct-block">
+                <button class="direct-optimize-btn" id="optimizeBtn" onclick="directOptimizeToggle()">
+                    <%= dInteract.label %>
+                </button>
+                <p class="direct-optimize-hint" id="optimizeHint">Toggle minimal mode</p>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function directClock() {
+        const el = document.getElementById('directClock');
+        if (!el) return;
+        const update = () => {
+            const now = new Date();
+            el.textContent = now.toTimeString().slice(0, 8);
+        };
+        update();
+        setInterval(update, 1000);
+    })();
+</script>

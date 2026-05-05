@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/style.css">
+        <title>Behavior Profile</title>
+    </head>
+    <body class="<%= [personality].concat(secondaryTraits || []).join(' ') %>">
+        <%- include('partials/nav.ejs') %>
+
+        <div id="share-popup" class="share-popup" data-personality="<%= personality %>">
+            <div class="share-popup-inner">
+                <span class="share-popup-icon">✓</span>
+                <span class="share-popup-msg">Link copied to clipboard!</span>
+            </div>
+        </div>
+
+        <div class="hub-wrapper">
+            <h1>Your Psychological Blueprint</h1>
+
+            <section class="card">
+                <h3>1. Primary Personality Scores</h3>
+                <p>Conscious decisions and behavioral patterns mapped to archetypes.</p>
+                <div class="breakdown">
+                    <%
+                    const primaryTypes = ['calm', 'chaotic', 'direct', 'curious', 'analytical', 'playful'];
+                    const maxPrimary = Math.max(...primaryTypes.map(t => allScores[t] || 0), 1);
+                    primaryTypes.forEach(type => {
+                        const score = allScores[type] || 0;
+                        const widthPct = Math.round((score / maxPrimary) * 280);
+                    %>
+                        <div class="bar-row">
+                            <span class="label"><%= type %>: <%= score.toFixed(1) %></span>
+                            <div class="bar-bg">
+                                <div class="bar primary-bar" style="--bar-width: <%= widthPct %>px;"></div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3>2. Secondary Modifier Scores</h3>
+                <p>Subconscious behavioral signals that modify your primary type.</p>
+                <div class="breakdown">
+                    <%
+                    const secondaryTypes = ['impulsive','hesitant','focused','explorer','efficient','overwhelmed','wandering','precise','erratic','rhythmic','engaged','skimming','revisiting','deep'];
+                    const maxSecondary = Math.max(...secondaryTypes.map(t => allScores[t] || 0), 1);
+                    secondaryTypes.forEach(type => {
+                        const score = allScores[type] || 0;
+                        const widthPct = Math.round((score / maxSecondary) * 280);
+                    %>
+                        <div class="bar-row">
+                            <span class="label"><%= type %>: <%= score.toFixed(1) %></span>
+                            <div class="bar-bg">
+                                <div class="bar secondary-bar" style="--bar-width: <%= widthPct %>px;"></div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+
+            <section class="card synthesis-card">
+                <h3>3. Synthesis</h3>
+                <p>Your primary personality archetype, confirmed by merging conscious choices with physical behavior patterns:</p>
+
+                <div class="synthesis-primary-block">
+                    <p class="synthesis-primary-label">Dominant Archetype</p>
+                    <h2 class="personality-highlight"><%= personality.toUpperCase() %></h2>
+                    <p class="synthesis-primary-desc">
+                        The dominant pattern emerging from your quiz responses and cursor behavior.
+                    </p>
+                </div>
+
+                <% if (secondaryTraits && secondaryTraits.length > 0) { %>
+                <div class="synthesis-modifiers-block">
+                    <p class="synthesis-modifier-label">Modified by</p>
+                    <div class="trait-badges trait-badges-mt">
+                        <% secondaryTraits.forEach(t => { %>
+                            <span class="badge badge-secondary"><%= t %></span>
+                        <% }) %>
+                    </div>
+                    <p class="synthesis-modifiers-desc">
+                        Secondary modifiers shape how your primary type expresses itself in practice.
+                        Together: <strong><%= personality %> + <%= secondaryTraits.join(' + ') %></strong>
+                    </p>
+                </div>
+                <% } %>
+            </section>
+
+            <div class="profile-actions">
+                <button onclick="shareResult()" class="btn btn-share">Generate Share Link</button>
+                <form action="/reset" method="POST" class="form-inline">
+                    <button type="submit" class="btn btn-danger">Reset Data</button>
+                </form>
+            </div>
+            <div id="share-link-container"></div>
+        </div>
+        <script src="/main.js"></script>
+    </body>
+</html>

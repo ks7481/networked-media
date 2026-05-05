@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Archive Detail</title>
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body class="<%= entry.personality %><% if (entry.secondaryTraits) { entry.secondaryTraits.forEach(t => { %> <%= t %><% }) } %>">
+        <%- include('partials/nav.ejs') %>
+
+        <div class="archive-detail-wrapper">
+            <h1 class="archive-detail-heading">Cursor Path</h1>
+            <p class="archive-detail-id"><%= entry.id %></p>
+
+            <div class="card">
+                <div class="archive-entry-header">
+                    <div>
+                        <div class="archive-entry-label">Personality</div>
+                        <strong class="archive-entry-personality"><%= entry.personality %></strong>
+                        <% if (entry.secondaryTraits && entry.secondaryTraits.length > 0) { %>
+                            <div class="trait-badges trait-badges-mt">
+                                <% entry.secondaryTraits.forEach(t => { %><span class="badge"><%= t %></span><% }) %>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="archive-entry-date-block">
+                        <div class="archive-entry-label">Recorded</div>
+                        <span class="archive-entry-date"><%= new Date(entry.timestamp).toLocaleDateString('en-US', { weekday:'short', year:'numeric', month:'long', day:'numeric' }) %></span>
+                    </div>
+                </div>
+
+                <div class="archive-back-link-wrap">
+                    <a href="/archive" class="btn btn-primary btn-sm">← Back to Archive</a>
+                </div>
+
+                <canvas id="replayCanvas" width="800" height="500"></canvas>
+
+                <div class="replay-controls">
+                    <button id="playBtn" class="btn btn-primary">▶ Play Replay</button>
+                    <button id="resetBtn" class="btn">✕ Clear</button>
+                    <label class="replay-label">
+                        <input type="checkbox" id="onionSkin" checked> Onion skin
+                    </label>
+                    <label class="replay-label">
+                        Speed:
+                        <select id="speedSelect">
+                            <option value="1">1×</option>
+                            <option value="2" selected>2×</option>
+                            <option value="4">4×</option>
+                            <option value="8">8×</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div id="statsBar">
+                    <span>Points: <strong id="statPoints">0</strong></span>
+                    <span>Clicks: <strong id="statClicks">0</strong></span>
+                    <span>Duration: <strong id="statDuration">—</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const path = JSON.parse('<%- JSON.stringify(entry.cursorData || []) %>');
+            const canvas = document.getElementById('replayCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const ONION_TRAIL_LENGTH = 18;
+            const DOT_RADIUS = 4;
+
+            const colorMap = {
+                calm: '#a8d8c8',
+                chaotic: '#ff2d55',
+                direct: '#222222',
+                curious: '#a78bfa',
+                analytical: '#7dffb0',
+                playful: '#ff9fbf'
+            };
+            const personality = '<%= entry.personality %>';
+            const trailColor = colorMap[personality] || '#6c5ce7';
+
+            let index = 0;
+            let animationId = null;
+            let trailHistory = [];
+
+            const clicks = path.filter(p => p.eventType === 'click').length;
+            const duration = path.length > 1
+                ? ((path[path.length - 1].timestamp - path[0].timestamp) / 1000).toFixed(1)
+                : 0;
+            document.getElementById('statPoints').textContent = path.length;
+            document.getElementById('statClicks').textContent = clicks;
+            document.getElementById('statDuration').textContent = duration + 's';
+
+            let minX = 0, minY = 0, scaleX = 1, scaleY = 1;
+            if (path.length > 0) {
+                const xs = path.map(p => p.x);
+                const ys = path.map(p => p.y);
+                minX = Math.min(...xs);
+                minY = Math.min(...ys);
+                const maxX = Math.max(...xs);
+                const maxY = Math.max(...ys);
+                const pad = 30;
+                const rangeX = (maxX - minX) || 1;
+                const rangeY = (maxY - minY) || 1;
+                scaleX = (canvas.width - pad * 2) / rangeX;
+                scaleY = (canvas.height - pad * 2) / rangeY;
+                const s = Math.min(scaleX, scaleY, 1.2);
+                scaleX = s;
+                scaleY = s;
+            }
+
+            function toCanvas(p) {
+                return {
+                    x: 30 + (p.x - minX) * scaleX,
+                    y: 30 + (p.y - minY) * scaleY
+                };
+            }
+
+            function drawFrame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const useOnion = document.getElementById('onionSkin').checked;
+
+                if (useOnion && trailHistory.length > 1) {
+                    for (let i = 0; i < trailHistory.length - 1; i++) {
+                        const alpha = (i / trailHistory.length) * 0.7;
+                        const radius = DOT_RADIUS * (0.4 + 0.6 * (i / trailHistory.length));
+                        const pos = toCanvas(trailHistory[i]);
+
+                        if (i > 0) {
+                            const prev = toCanvas(trailHistory[i - 1]);
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(${hexToRgb(trailColor)}, ${alpha * 0.5})`;
+                            ctx.lineWidth = 1;
+                            ctx.lineCap = 'round';
+                            ctx.moveTo(prev.x, prev.y);
+                            ctx.lineTo(pos.x, pos.y);
+                            ctx.stroke();
+                        }
+
+                        ctx.beginPath();
+                        ctx.fillStyle = `rgba(${hexToRgb(trailColor)}, ${alpha})`;
+                        ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else if (trailHistory.length > 1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = trailColor;
+                    ctx.lineWidth = 1.5;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.globalAlpha = 0.4;
+                    trailHistory.forEach((p, i) => {
+                        const pos = toCanvas(p);
+                        if (i === 0) ctx.moveTo(pos.x, pos.y);
+                        else ctx.lineTo(pos.x, pos.y);
+                    });
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                }
+
+                if (trailHistory.length > 0) {
+                    const cur = toCanvas(trailHistory[trailHistory.length - 1]);
+                    const isClick = trailHistory[trailHistory.length - 1].eventType === 'click';
+
+                    ctx.beginPath();
+                    ctx.fillStyle = trailColor;
+                    ctx.arc(cur.x, cur.y, isClick ? DOT_RADIUS * 2 : DOT_RADIUS, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (isClick) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = trailColor;
+                        ctx.lineWidth = 1.5;
+                        ctx.globalAlpha = 0.4;
+                        ctx.arc(cur.x, cur.y, DOT_RADIUS * 4, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+
+            function hexToRgb(hex) {
+                hex = hex.replace('#', '');
+                if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+                const n = parseInt(hex, 16);
+                return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+            }
+
+            function drawNextPoint() {
+                if (index >= path.length) return;
+
+                const point = path[index];
+                trailHistory.push(point);
+                if (trailHistory.length > ONION_TRAIL_LENGTH) trailHistory.shift();
+
+                drawFrame();
+                index++;
+
+                if (index < path.length) {
+                    const speedMultiplier = parseFloat(document.getElementById('speedSelect').value);
+                    const nextPoint = path[index];
+                    const rawDelay = nextPoint.timestamp - point.timestamp;
+                    const delay = Math.max(10, Math.min(rawDelay / speedMultiplier, 120));
+
+                    animationId = setTimeout(() => {
+                        requestAnimationFrame(drawNextPoint);
+                    }, delay);
+                }
+            }
+
+            document.getElementById('playBtn').onclick = () => {
+                clearTimeout(animationId);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                index = 0;
+                trailHistory = [];
+
+                if (path.length > 0) {
+                    drawNextPoint();
+                } else {
+                    ctx.fillStyle = '#999';
+                    ctx.font = '14px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No cursor data recorded for this entry.', canvas.width / 2, canvas.height / 2);
+                }
+            };
+
+            document.getElementById('resetBtn').onclick = () => {
+                clearTimeout(animationId);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                index = 0;
+                trailHistory = [];
+            };
+        </script>
+    </body>
+</html>

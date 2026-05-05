@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <title>The Assessment</title>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div id="quiz-flow"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "How do you prefer to spend a rainy afternoon?",
+                options: [
+                    { t: "Organizing my workspace to perfect order", types: ["direct", "efficient"] },
+                    { t: "Watching the droplets race down the window", types: ["calm", "hesitant"] },
+                    { t: "Starting three different projects at once", types: ["chaotic", "impulsive"] },
+                    { t: "Deep-diving into a subject I barely know", types: ["curious", "deep"] }
+                ]
+            },
+            {
+                q: "Your ideal workspace is...",
+                options: [
+                    { t: "Empty desk, one lamp, nothing else", types: ["direct", "efficient"] },
+                    { t: "A cozy nook with plants and soft light", types: ["calm", "focused"] },
+                    { t: "A vibrant mess of sticky notes and ideas", types: ["chaotic", "explorer"] },
+                    { t: "A library-like room with reference books everywhere", types: ["analytical", "deep"] }
+                ]
+            },
+            {
+                q: "Choose a visual pattern:",
+                options: [
+                    { t: "A single unbroken black line", types: ["direct", "precise"] },
+                    { t: "A soft, shifting watercolor gradient", types: ["calm", "wandering"] },
+                    { t: "Overlapping neon splatters and collisions", types: ["chaotic", "erratic"] },
+                    { t: "An intricate lattice of repeating geometry", types: ["analytical", "rhythmic"] }
+                ]
+            },
+            {
+                q: "When faced with a complex problem, you...",
+                options: [
+                    { t: "Break it into a numbered checklist immediately", types: ["direct", "precise"] },
+                    { t: "Step away and let intuition surface the answer", types: ["calm", "hesitant"] },
+                    { t: "Try every approach simultaneously and iterate fast", types: ["chaotic", "impulsive"] },
+                    { t: "Research the history and root causes first", types: ["analytical", "deep"] }
+                ]
+            },
+            {
+                q: "Pick a travel destination:",
+                options: [
+                    { t: "A high-efficiency metropolis with great transit", types: ["direct", "efficient"] },
+                    { t: "A secluded mountain cabin with no WiFi", types: ["calm", "focused"] },
+                    { t: "A sprawling city I've never heard of before", types: ["curious", "explorer"] },
+                    { t: "An ancient archaeological site with hidden passages", types: ["curious", "deep"] }
+                ]
+            },
+            {
+                q: "Which best describes your relationship with time?",
+                options: [
+                    { t: "I track it precisely — every minute has a purpose", types: ["analytical", "precise"] },
+                    { t: "I let it flow; urgency is an illusion", types: ["calm", "wandering"] },
+                    { t: "I underestimate it constantly and love the chaos", types: ["chaotic", "impulsive"] },
+                    { t: "Time reveals itself as I follow my curiosity", types: ["curious", "explorer"] }
+                ]
+            },
+            {
+                q: "How do you react to an unexpected change of plans?",
+                options: [
+                    { t: "Quickly replan and adapt with minimal fuss", types: ["direct", "efficient"] },
+                    { t: "Take a breath, accept it, see what unfolds", types: ["calm", "hesitant"] },
+                    { t: "Get excited — the deviation IS the adventure", types: ["playful", "impulsive"] },
+                    { t: "Analyze what caused it and what it means", types: ["analytical", "focused"] }
+                ]
+            },
+            {
+                q: "In a conversation, you tend to...",
+                options: [
+                    { t: "Listen carefully and ask clarifying questions", types: ["analytical", "engaged"] },
+                    { t: "Get to the point and move forward efficiently", types: ["direct", "efficient"] },
+                    { t: "Jump between ideas and connect everything", types: ["chaotic", "erratic"] },
+                    { t: "Explore tangents and get pleasantly lost", types: ["curious", "wandering"] }
+                ]
+            },
+            {
+                q: "Choose a sound environment to work in:",
+                options: [
+                    { t: "Complete silence", types: ["analytical", "focused"] },
+                    { t: "Gentle ambient rain or nature sounds", types: ["calm", "rhythmic"] },
+                    { t: "Loud, chaotic music that shifts every few minutes", types: ["chaotic", "erratic"] },
+                    { t: "An upbeat playlist on shuffle", types: ["playful", "rhythmic"] }
+                ]
+            },
+            {
+                q: "When you revisit something you made before, you feel...",
+                options: [
+                    { t: "Critical — I see only what could be improved", types: ["analytical", "precise"] },
+                    { t: "Nostalgic and gently satisfied", types: ["calm", "revisiting"] },
+                    { t: "The urge to tear it apart and rebuild entirely", types: ["chaotic", "impulsive"] },
+                    { t: "Curious about the version of me who made it", types: ["curious", "revisiting"] }
+                ]
+            },
+            {
+                q: "What does 'done' mean to you?",
+                options: [
+                    { t: "Criteria met, box checked, move on", types: ["direct", "efficient"] },
+                    { t: "When it feels peaceful and complete", types: ["calm", "focused"] },
+                    { t: "There's no done — there's only 'next iteration'", types: ["playful", "engaged"] },
+                    { t: "When I've explored every meaningful edge case", types: ["analytical", "deep"] }
+                ]
+            },
+            {
+                q: "Pick a way to learn a new skill:",
+                options: [
+                    { t: "Follow a structured course from start to finish", types: ["analytical", "focused"] },
+                    { t: "Watch someone do it, then try slowly myself", types: ["calm", "hesitant"] },
+                    { t: "Jump in and break things until something clicks", types: ["chaotic", "impulsive"] },
+                    { t: "Read voraciously, gather all context first", types: ["curious", "deep"] }
+                ]
+            },
+            {
+                q: "Your ideal creative medium is:",
+                options: [
+                    { t: "Architecture or industrial design", types: ["direct", "precise"] },
+                    { t: "Watercolor or poetry", types: ["calm", "wandering"] },
+                    { t: "Experimental sound collage", types: ["chaotic", "explorer"] },
+                    { t: "Data visualization or diagrams", types: ["analytical", "precise"] }
+                ]
+            },
+            {
+                q: "How do you handle an emotional moment?",
+                options: [
+                    { t: "Process it logically and move forward", types: ["direct", "efficient"] },
+                    { t: "Sit with the feeling until it settles", types: ["calm", "hesitant"] },
+                    { t: "Express it loudly and theatrically", types: ["playful", "impulsive"] },
+                    { t: "Write about it to understand it better", types: ["analytical", "deep"] }
+                ]
+            },
+            {
+                q: "At the end of a long day, your ideal activity is:",
+                options: [
+                    { t: "Ticking off the last item on a to-do list", types: ["direct", "efficient"] },
+                    { t: "Sitting quietly with something warm to drink", types: ["calm", "focused"] },
+                    { t: "Spontaneously calling friends for an adventure", types: ["playful", "impulsive"] },
+                    { t: "Falling down a rabbit hole of something fascinating", types: ["curious", "engaged"] }
+                ]
+            },
+            {
+                q: "What's your relationship with rules?",
+                options: [
+                    { t: "Rules are systems — I optimize them", types: ["analytical", "precise"] },
+                    { t: "Rules give me comfort and clarity", types: ["direct", "focused"] },
+                    { t: "Rules are suggestions worth questioning", types: ["curious", "explorer"] },
+                    { t: "Rules are obstacles that spark creativity", types: ["chaotic", "erratic"] }
+                ]
+            },
+            {
+                q: "Which phrase resonates most?",
+                options: [
+                    { t: "\"Measure twice, cut once.\"", types: ["analytical", "precise"] },
+                    { t: "\"Go slowly to go far.\"", types: ["calm", "hesitant"] },
+                    { t: "\"Ready, fire, aim.\"", types: ["chaotic", "impulsive"] },
+                    { t: "\"The map is not the territory.\"", types: ["curious", "wandering"] }
+                ]
+            }
+        ];
+
+        let currentStep = 0;
+        const results = [];
+
+        function renderQuestion() {
+            const container = document.getElementById('quiz-flow');
+            const item = questions[currentStep];
+            const pct = Math.round((currentStep / questions.length) * 100);
+            document.getElementById('progressFill').style.width = pct + '%';
+
+            container.innerHTML = `
+                <div class="progress-text">Question ${currentStep + 1} of ${questions.length}</div>
+                <h2 class="quiz-question">${item.q}</h2>
+                <div class="options-grid">
+                    ${item.options.map((opt, i) => `
+                        <button class="option-btn" data-index="${i}">
+                            ${opt.t}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    selectOption(item.options[idx].types);
+                });
+            });
+        }
+
+        function selectOption(types) {
+            results.push(types);
+            if (currentStep < questions.length - 1) {
+                currentStep++;
+                renderQuestion();
+            } else {
+                submitQuiz();
+            }
+        }
+
+        function submitQuiz() {
+            document.getElementById('progressFill').style.width = '100%';
+            fetch('/quiz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: results })
+            }).then(res => {
+                if (res.redirected) {
+                    window.location.href = res.url;
+                }
+            });
+        }
+        renderQuestion();
+    </script>
+    <script src="/tracker.js"></script>
+</body>
+</html>

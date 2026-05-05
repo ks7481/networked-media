@@ -1,0 +1,128 @@
+<%
+    const feedByType = {};
+    feed.forEach(item => {
+        if (!feedByType[item.type]) feedByType[item.type] = [];
+        feedByType[item.type].push(item);
+    });
+    const curQuote    = (feedByType['quote']          || [])[0];
+    const curHidden   = (feedByType['hidden']          || [])[0];
+    const curReveal   = (feedByType['reveal-question'] || [])[0];
+    const curTexts    = feedByType['text']  || [];
+    const curImages   = feedByType['image'] || [];
+%>
+
+<div class="curious-hub">
+    <header class="curious-hero">
+        <div class="curious-stars" aria-hidden="true">
+            <% for(let i = 0; i < 40; i++) { %>
+                <span class="curious-star" style="--left: <%= Math.floor(Math.random()*100) %>%; --top: <%= Math.floor(Math.random()*100) %>%; --delay: <%= (Math.random()*4).toFixed(2) %>s; --duration: <%= (2 + Math.random()*3).toFixed(2) %>s; --size: <%= (8 + Math.random()*8).toFixed(0) %>px;">✦</span>
+            <% } %>
+        </div>
+        <p class="curious-eyebrow">you are</p>
+        <h1 class="curious-title">curious</h1>
+        <% if (secondaryTraits && secondaryTraits.length > 0) { %>
+            <div class="trait-badges curious-badges">
+                <% secondaryTraits.forEach(t => { %><span class="badge"><%= t %></span><% }) %>
+            </div>
+        <% } %>
+        <p class="curious-tagline">You do not follow paths. You notice where no path has been.</p>
+    </header>
+
+    <div class="curious-layout">
+        <div class="curious-col-left">
+            <% if (curImages[0]) { %>
+            <div class="curious-card curious-img-card curious-img-tall">
+                <div class="curious-img-wrap">
+                    <img src="<%= curImages[0].src %>" alt="<%= curImages[0].alt %>" class="hub-img" loading="lazy">
+                    <div class="curious-img-overlay"><%= curImages[0].alt %></div>
+                </div>
+                <% if (curImages[0].caption) { %>
+                    <p class="curious-caption">— <%= curImages[0].caption %></p>
+                <% } %>
+            </div>
+            <% } %>
+
+            <% if (curHidden) { %>
+            <div class="curious-card curious-hidden-card" onclick="curiousRevealHidden(this)">
+                <div class="curious-hidden-before">
+                    <span class="curious-hidden-icon">◈</span>
+                    <span class="curious-hidden-prompt"><%= curHidden.label %></span>
+                </div>
+                <div class="curious-hidden-after">
+                    <p><%= curHidden.revealContent %></p>
+                </div>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="curious-col-center">
+            <% if (curQuote) { %>
+            <div class="curious-card curious-quote-card">
+                <div class="curious-quote-mark">"</div>
+                <blockquote class="curious-quote-text"><%- curQuote.content.replace(/\n/g, '<br>') %></blockquote>
+                <% if (curQuote.attribution) { %>
+                    <cite class="curious-attribution"><%= curQuote.attribution %></cite>
+                <% } %>
+            </div>
+            <% } %>
+
+            <% if (curReveal) { %>
+            <div class="curious-card curious-oracle-card">
+                <div class="curious-oracle-top">
+                    <span class="curious-oracle-symbol">✧</span>
+                    <p class="curious-oracle-label">The Oracle</p>
+                </div>
+                <div class="curious-oracle-window" id="oracleWindow">
+                    <p class="curious-oracle-text" id="oracleText">Ask and it shall appear…</p>
+                </div>
+                <button class="curious-oracle-btn" onclick="revealQuestion()">
+                    <%= curReveal.label %>
+                </button>
+                <script type="application/json" id="oracle-questions"><%- JSON.stringify(curReveal.questions || []) %></script>
+                <script>
+                    window._oracleQuestions = JSON.parse(document.getElementById('oracle-questions').textContent);
+                    window._oracleIndex = -1;
+                </script>
+            </div>
+            <% } %>
+
+            <% if (curTexts[0]) { %>
+            <div class="curious-card curious-text-card">
+                <p class="curious-body-text"><%- curTexts[0].content.replace(/\n/g, '<br>') %></p>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="curious-col-right">
+            <% if (curTexts[1]) { %>
+            <div class="curious-card curious-text-card curious-text-right">
+                <p class="curious-body-text"><%- curTexts[1].content.replace(/\n/g, '<br>') %></p>
+            </div>
+            <% } %>
+
+            <% if (curImages[1]) { %>
+            <div class="curious-card curious-img-card">
+                <div class="curious-img-wrap">
+                    <img src="<%= curImages[1].src %>" alt="<%= curImages[1].alt %>" class="hub-img" loading="lazy">
+                    <div class="curious-img-overlay"><%= curImages[1].alt %></div>
+                </div>
+                <% if (curImages[1].caption) { %>
+                    <p class="curious-caption">— <%= curImages[1].caption %></p>
+                <% } %>
+            </div>
+            <% } %>
+
+            <% if (curImages[2]) { %>
+            <div class="curious-card curious-img-card">
+                <div class="curious-img-wrap">
+                    <img src="<%= curImages[2].src %>" alt="<%= curImages[2].alt %>" class="hub-img" loading="lazy">
+                    <div class="curious-img-overlay"><%= curImages[2].alt %></div>
+                </div>
+                <% if (curImages[2].caption) { %>
+                    <p class="curious-caption">— <%= curImages[2].caption %></p>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</div>

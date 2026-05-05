@@ -1,0 +1,152 @@
+<%
+    const feedByType = {};
+    feed.forEach(item => {
+        if (!feedByType[item.type]) feedByType[item.type] = [];
+        feedByType[item.type].push(item);
+    });
+    const aTerminal = (feedByType['terminal-log'] || [])[0];
+    const aChart    = (feedByType['score-chart']  || [])[0];
+    const aStatRow  = (feedByType['stat-row']     || [])[0];
+    const aInteract = (feedByType['interactive']  || [])[0];
+    const aTexts    = feedByType['text']  || [];
+    const aImages   = feedByType['image'] || [];
+
+    const primaryTypes = ['calm', 'chaotic', 'direct', 'curious', 'analytical', 'playful'];
+    const allScoresForChart = allScores || {};
+    const maxScore = Math.max(...primaryTypes.map(t => allScoresForChart[t] || 0), 1);
+%>
+
+<div class="analytical-hub">
+    <div class="analytical-header-bar">
+        <span class="ana-header-item">SYSTEM: personality_engine</span>
+        <span class="ana-header-item ana-header-sep">|</span>
+        <span class="ana-header-item">USER: <strong>analytical</strong></span>
+        <% if (secondaryTraits && secondaryTraits.length > 0) { %>
+        <span class="ana-header-item ana-header-sep">|</span>
+        <span class="ana-header-item">MODIFIERS: <%= secondaryTraits.join(' · ') %></span>
+        <% } %>
+        <span class="ana-header-item ana-header-right" id="anaTimestamp"></span>
+    </div>
+
+    <div class="analytical-grid">
+        <div class="ana-col">
+            <% if (aTerminal) { %>
+            <div class="ana-block">
+                <div class="ana-block-header">
+                    <span class="ana-dot ana-dot-r"></span>
+                    <span class="ana-dot ana-dot-y"></span>
+                    <span class="ana-dot ana-dot-g"></span>
+                    <span class="ana-window-title">terminal — behavioral_analysis</span>
+                </div>
+                <div class="ana-terminal-body" id="anaTerminal"></div>
+                <script type="application/json" id="term-lines"><%- JSON.stringify(aTerminal.lines) %></script>
+                <script>
+                    window._termLines = JSON.parse(document.getElementById('term-lines').textContent);
+                </script>
+            </div>
+            <% } %>
+
+            <% if (aTexts[0]) { %>
+            <div class="ana-block ana-text-block">
+                <p class="ana-text"><%- aTexts[0].content.replace(/\n/g, '<br>') %></p>
+            </div>
+            <% } %>
+
+            <% if (aImages[0]) { %>
+            <div class="ana-block ana-img-block">
+                <div class="ana-block-header ana-block-header-sm">
+                    <span class="ana-window-title">// REFERENCE_IMAGE_01</span>
+                </div>
+                <div class="ana-img-wrap">
+                    <img src="<%= aImages[0].src %>" alt="<%= aImages[0].alt %>" class="hub-img" loading="lazy">
+                    <div class="ana-img-overlay"><%= aImages[0].alt %></div>
+                </div>
+                <% if (aImages[0].caption) { %><p class="ana-caption"><%= aImages[0].caption %></p><% } %>
+            </div>
+            <% } %>
+
+        </div>
+
+        <div class="ana-col">
+            <% if (aChart) { %>
+            <div class="ana-block ana-chart-block">
+                <div class="ana-block-header ana-block-header-sm">
+                    <span class="ana-window-title"><%= aChart.label %></span>
+                </div>
+                <div class="ana-chart-body">
+                    <% primaryTypes.forEach(type => { %>
+                    <%
+                        const score = allScoresForChart[type] || 0;
+                        const pct   = Math.round((score / maxScore) * 100);
+                        const isActive = type === personality;
+                    %>
+                    <div class="ana-chart-row">
+                        <span class="ana-chart-label <%= isActive ? 'ana-chart-active' : '' %>"><%= type %></span>
+                        <div class="ana-chart-track">
+                            <div class="ana-chart-bar <%= isActive ? 'ana-chart-bar-active' : '' %>"
+                                 data-width="<%= pct %>%"></div>
+                        </div>
+                        <span class="ana-chart-val"><%= score.toFixed(1) %></span>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (aStatRow) { %>
+            <div class="ana-block ana-stats-block">
+                <% aStatRow.stats.forEach(stat => { %>
+                <div class="ana-stat">
+                    <span class="ana-stat-label"><%= stat.label %></span>
+                    <span class="ana-stat-value"><%= stat.value %></span>
+                </div>
+                <% }) %>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="ana-col">
+            <% if (aImages[1]) { %>
+            <div class="ana-block ana-img-block">
+                <div class="ana-block-header ana-block-header-sm">
+                    <span class="ana-window-title">// REFERENCE_IMAGE_02</span>
+                </div>
+                <div class="ana-img-wrap">
+                    <img src="<%= aImages[1].src %>" alt="<%= aImages[1].alt %>" class="hub-img" loading="lazy">
+                    <div class="ana-img-overlay"><%= aImages[1].alt %></div>
+                </div>
+                <% if (aImages[1].caption) { %><p class="ana-caption"><%= aImages[1].caption %></p><% } %>
+            </div>
+            <% } %>
+
+            <% if (aTexts[1]) { %>
+            <div class="ana-block ana-text-block">
+                <p class="ana-text"><%- aTexts[1].content.replace(/\n/g, '<br>') %></p>
+            </div>
+            <% } %>
+
+            <% if (aInteract) { %>
+            <div class="ana-block ana-interact-block">
+                <button class="ana-run-btn" onclick="runFullAnalysis()" id="anaRunBtn">
+                    <span class="ana-run-icon">▶</span> <%= aInteract.label %>
+                </button>
+                <div class="ana-run-output" id="anaRunOutput"></div>
+            </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="analytical-footer-bar">
+        <span>// analysis complete</span>
+        <span>personality: ANALYTICAL</span>
+        <span>confidence: 94.3%</span>
+    </div>
+
+</div>
+
+<script>
+    (function() {
+        const el = document.getElementById('anaTimestamp');
+        if (el) el.textContent = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    })();
+</script>
